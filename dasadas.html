@@ -1,0 +1,616 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Gerenciamento</title>
+  <!-- Bootstrap 4.1 CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+  <!-- Font Awesome para ícones -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <style>
+    body {
+      padding-top: 56px;
+      background-color: #f8f9fa;
+    }
+
+    /*Clientes*/
+
+    .clientpfp {
+      width: 48px;
+      height: 48px;
+      border: 4px;
+      border-radius: 48px;
+      border: solid #007bff;
+      margin: 4px;
+    }
+
+    .clientslist {
+      align-items: center;
+      display: flex;
+      width: fit-content;
+      height: fit-content;
+    }
+
+    .clientslist ul li {
+      display: flex;
+      text-align: right;
+      justify-content: center;
+      padding: 2px;
+    }
+
+    .clientslist ul li p {
+      display: flex;
+      align-items: center;
+      text-align: left;
+      margin: 0;
+    }
+
+    /*Produtos*/
+
+    .productimg {
+      max-width: 200px;
+      max-height: 200px;
+      border: 4px;
+      margin: 4px;
+      border-radius: 4px;
+      border: solid #007bff;
+    }
+
+    .productstable {
+      align-items: center;
+      display: flex;
+      width: fit-content;
+      height: fit-content;
+    }
+
+    .productstable tr td {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2px;
+    }
+
+    .productstable tr td p {
+      display: flex;
+      align-items: center;
+      text-align: start;
+      margin: 4px;
+      height: 200px;
+      width: 200px;
+      border-radius: 4px;
+      border: solid #007bff;
+      padding: 4px;
+    }
+
+    /*Relatórios*/
+
+    .salesreporttable tr {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 4px;
+      border-radius: 4px;
+      border: solid #007bff;
+    }
+
+    .salesreporttable tr td {
+      padding: 0px;
+      margin: 4px;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .salesreporttable tr td p {
+      padding: 0;
+      margin: 4px;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* Sidebar */
+    #sidebar {
+      min-width: 250px;
+      max-width: 250px;
+      background: #343a40;
+      color: #fff;
+      transition: all 0.3s;
+      position: fixed;
+      height: calc(100vh - 56px);
+      top: 56px;
+      left: 0;
+      overflow-y: auto;
+    }
+
+    #sidebar .sidebar-header {
+      padding: 20px;
+      background: #212529;
+    }
+
+    #sidebar ul.components {
+      padding: 10px 0;
+    }
+
+    #sidebar ul li a {
+      padding: 12px 20px;
+      font-size: 1.1em;
+      display: block;
+      color: #adb5bd;
+      text-decoration: none;
+      transition: background 0.3s;
+    }
+
+    #sidebar ul li a:hover {
+      background: #495057;
+      color: #fff;
+    }
+
+    #sidebar ul li.active>a {
+      background: #007bff;
+      color: #fff;
+    }
+
+    /* Conteúdo principal */
+    #content {
+      margin-left: 250px;
+      padding: 20px;
+      transition: margin-left 0.3s;
+    }
+
+    /* Navbar */
+    .navbar-brand span {
+      font-weight: bold;
+    }
+
+    /* Toggle button (mobile) */
+    #sidebarCollapse {
+      background: none;
+      border: none;
+      color: #fff;
+    }
+
+    /* Responsivo */
+    @media (max-width: 768px) {
+      #sidebar {
+        margin-left: -250px;
+      }
+
+      #sidebar.active {
+        margin-left: 0;
+      }
+
+      #content {
+        margin-left: 0;
+      }
+
+      #content.active {
+        margin-left: 250px;
+      }
+    }
+
+    .card-main {
+      background: linear-gradient(180deg, #1a0b0b, #170e0e);
+      border: 1px solid #2b0000
+    }
+
+    .form-label {
+      color: #ff6b6b;
+    }
+
+    .btn-custom {
+      background: #ff1a1a;
+      color: #fff;
+      border: none
+    }
+
+    .btn-custom:disabled {
+      opacity: 0.6
+    }
+
+    .file-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px
+    }
+
+    .file-box {
+      background: #121212;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px dashed #330000
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar Superior -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <div class="container-fluid">
+      <button type="button" id="sidebarCollapse" class="btn">
+        <i class="fas fa-bars"></i>
+      </button>
+      <a class="navbar-brand" href="#"><span>Sistema Admin</span></a>
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">
+            <i class="fas fa-user"></i> Usuário
+          </a>
+          <div class="dropdown-menu dropdown-menu-right">
+            <a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Configurações</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt"></i> Sair</a>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Sidebar -->
+  <nav id="sidebar">
+    <div class="sidebar-header">
+      <h4>Menu Principal</h4>
+    </div>
+    <ul class="list-unstyled components">
+      <li class="active">
+        <a href="#dashboard"><i class="fas fa-home mr-2"></i> Dashboard</a>
+      </li>
+      <li>
+        <a href="#clients"><i class="fas fa-users mr-2"></i> Clientes</a>
+      </li>
+      <li>
+        <a href="#products"><i class="fas fa-book mr-2"></i> Add Mangá</a>
+      </li>
+      <li>
+        <a href="#salesreport"><i class="fas fa-chart-line mr-2"></i> Relatórios</a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Conteúdo Principal -->
+  <div id="content">
+    <div class="container-fluid">
+      <h2 id="dashboard" class="fas fa-home"> Dashboard</h2>
+      <p class="lead">Bem-vindo ao sistema de gerenciamento. Use o menu lateral para navegar.</p>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+              <h5 class="card-title">Clientes Ativos</h5>
+              <p class="card-text display-4">3</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+              <h5 class="card-title">Assinaturas Hoje</h5>
+              <p class="card-text display-4">1</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Clientes-->
+  <div id="content">
+    <div class="container-fluid">
+
+      <h2 id="clients" class="fas fa-users"> Clientes</h2>
+
+      <details>
+        <summary>Abrir lista de clientes</summary>
+
+        <list class="clientslist">
+
+          <ul>
+
+            <li type="client" name="Kanade Yoisaki">
+              <img src="../img/kanade.jpg" alt="Kanade Yoisaki" class="clientpfp">
+              <p>Kanade Yoisaki</p>
+            </li>
+
+            <li type="client" name="Mafuyu Asahina">
+              <img src="../img/mafuyu-asahina.jpg" alt="Mafuyu Asahina" class="clientpfp">
+              <p>Mafuyu Asahina</p>
+            </li>
+
+            <li type="client" name="Ena Shinonome">
+              <img src="../img/shinonome ena .jpg" alt="Ena Shinonome" class="clientpfp">
+              <p>Ena Shinonome</p>
+            </li>
+
+            <li type="client" name="Mizuki Akiyama">
+              <img src="../img/Mizuki akiyama.jpg" alt="Mizuki Akiyama" class="clientpfp">
+              <p>Mizuki Akiyama</p>
+            </li>
+          </ul>
+
+        </list>
+
+      </details>
+
+    </div>
+  </div>
+
+  <!--Produtos-->
+  <div id="content">
+    <div class="container-fluid">
+
+      <h2 id="products" class="fas fa-book"> Adicionar Mangá</h2>
+
+      <div class="card card-main mx-auto p-4" style="max-width:900px">
+        <!-- Single-column layout: informações obrigatórias em cima, upload de páginas abaixo -->
+        <form id="postForm" class="needs-validation" novalidate>
+
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label">Nome do Mangá *</label>
+              <input id="nome" name="nome" type="text" class="form-control" required />
+              <div class="invalid-feedback">Informe o nome do mangá.</div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <label class="form-label">Capítulo Nº *</label>
+              <input id="numero" name="numero" type="number" class="form-control" min="1" required />
+              <div class="invalid-feedback">Informe o número do capítulo.</div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <label class="form-label">Título do Capítulo *</label>
+              <input id="titulo" name="titulo" type="text" class="form-control" required />
+              <div class="invalid-feedback">Informe o título do capítulo.</div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Descrição *</label>
+              <textarea id="descricao" name="descricao" class="form-control" rows="2" required></textarea>
+              <div class="invalid-feedback">Escreva uma descrição.</div>
+            </div>
+
+            <div class="col-6 col-md-4">
+              <label class="form-label">Autor *</label>
+              <input id="autor" name="autor" type="text" class="form-control" required />
+              <div class="invalid-feedback">Informe o autor.</div>
+            </div>
+
+            <div class="col-6 col-md-4">
+              <label class="form-label">Gênero *</label>
+              <select id="genero" name="genero" class="form-select" required>
+                <option value="">Selecione...</option>
+                <option>Ação</option>
+                <option>Aventura</option>
+                <option>Fantasia</option>
+                <option>Romance</option>
+                <option>Comédia</option>
+                <option>Drama</option>
+                <option>Horror</option>
+              </select>
+              <div class="invalid-feedback">Escolha um gênero.</div>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <label class="form-label">Idade Recomendada *</label>
+              <select id="idade" name="idade" class="form-select" required>
+                <option value="">Selecione...</option>
+                <option>Livre</option>
+                <option>10+</option>
+                <option>12+</option>
+                <option>14+</option>
+                <option>16+</option>
+                <option>18+</option>
+              </select>
+              <div class="invalid-feedback">Selecione a idade recomendada.</div>
+            </div>
+
+            <!-- Seção de upload de páginas -->
+            <div class="col-12">
+              <hr style="border-color:#330000" />
+              <label class="form-label">Quantas Páginas? *</label>
+              <input id="qtPaginas" type="number" class="form-control mb-2" min="1" placeholder="Ex: 20" required />
+              <div class="invalid-feedback" id="pagCountFeedback">Informe a quantidade de páginas.</div>
+
+              <div id="uploaderArea">
+                <!-- botão rápido para adicionar 1 página extra -->
+                <div class="mb-2 d-flex gap-2">
+                  <button id="gerarBtn" type="button" class="btn btn-sm btn-custom">Gerar campos</button>
+                  <button id="limparBtn" type="button" class="btn btn-sm btn-outline-light">Limpar</button>
+                </div>
+
+                <div id="paginaGrid" class="file-grid" aria-live="polite"></div>
+
+                <small class="d-block mt-2 text-muted">Cada campo aceita imagens (jpg, png). Todos são obrigatórios se
+                  você gerar com uma quantidade.</small>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="mt-4 d-grid">
+            <button id="submitBtn" class="btn btn-custom btn-lg" type="submit">Enviar e continuar</button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!--Relatórios-->
+  <div id="content">
+    <div class="container-fluid">
+
+      <h2 id="#salesreport" class="fas fa-chart-line"> Relatórios</h2>
+
+      <details>
+        <summary>Abrir Relatório de Assinaturas</summary>
+
+        <table class="salesreporttable">
+
+          <tr class="row">
+
+            <td type="date" class="col">
+              <p>Data: 23/10/2022</p>
+            </td>
+
+            <td type="client" class="col">
+              <p>Cliente: Kanade Yoisaki</p>
+            </td>
+
+          </tr>
+
+          <tr class="row">
+
+            <td type="date" class="col">
+              <p>Data: 13/06/2022</p>
+            </td>
+
+            <td type="client" class="col">
+              <p>Cliente: Ena Shinonome</p>
+            </td>
+
+          </tr>
+
+          <tr class="row">
+
+            <td type="date" class="col">
+              <p>Data: 31/03/2022</p>
+            </td>
+
+            <td type="client" class="col">
+              <p>Cliente: Mizuki Akiyama</p>
+            </td>
+
+          </tr>
+
+          <tr class="row">
+
+            <td type="date" class="col">
+              <p>Data: 18/12/2021</p>
+            </td>
+
+            <td type="client" class="col">
+              <p>Cliente: Mafuyu Asahina</p>
+            </td>
+
+          </tr>
+
+        </table>
+      </details>
+
+    </div>
+  </div>
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('#sidebarCollapse').on('click', function () {
+        $('#sidebar').toggleClass('active');
+        $('#content').toggleClass('active');
+      });
+    });
+
+    const form = document.getElementById('postForm');
+    const qtPaginas = document.getElementById('qtPaginas');
+    const gerarBtn = document.getElementById('gerarBtn');
+    const limparBtn = document.getElementById('limparBtn');
+    const paginaGrid = document.getElementById('paginaGrid');
+    const pagCountFeedback = document.getElementById('pagCountFeedback');
+
+    function clearPages() {
+      paginaGrid.innerHTML = '';
+    }
+
+    function gerarCampos() {
+      clearPages();
+      const total = Number(qtPaginas.value);
+      if (!total || total < 1) {
+        qtPaginas.classList.add('is-invalid');
+        pagCountFeedback.textContent = 'Informe um número válido de páginas (>=1).';
+        return;
+      }
+      qtPaginas.classList.remove('is-invalid');
+      for (let i = 1; i <= total; i++) {
+        const box = document.createElement('div');
+        box.className = 'file-box';
+
+        const lbl = document.createElement('label');
+        lbl.className = 'form-label mb-1';
+        lbl.textContent = `Página ${i} *`;
+
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.required = true;
+        input.className = 'form-control form-control-sm';
+        input.dataset.page = i;
+
+        box.appendChild(lbl);
+        box.appendChild(input);
+        paginaGrid.appendChild(box);
+      }
+      // scroll para os campos
+      paginaGrid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    gerarBtn.addEventListener('click', gerarCampos);
+    limparBtn.addEventListener('click', () => { qtPaginas.value = ''; clearPages(); });
+
+    // submit handler: valida todos os campos, inclusive arquivos gerados
+    form.addEventListener('submit', function (e) {
+      // bootstrap validation
+      if (!form.checkValidity()) {
+        e.preventDefault();
+        e.stopPropagation();
+        form.classList.add('was-validated');
+        return;
+      }
+
+      // se há campos de páginas gerados, verificar se cada um tem arquivo
+      const fileInputs = paginaGrid.querySelectorAll('input[type=file]');
+      if (fileInputs.length > 0) {
+        for (const fi of fileInputs) {
+          if (!fi.files || fi.files.length === 0) {
+            e.preventDefault();
+            e.stopPropagation();
+            fi.classList.add('is-invalid');
+            fi.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+          }
+        }
+      } else {
+        // se não gerou campos, impedir envio
+        e.preventDefault();
+        e.stopPropagation();
+        qtPaginas.classList.add('is-invalid');
+        pagCountFeedback.textContent = 'Você precisa gerar os campos de upload para as páginas.';
+        return;
+      }
+
+      // se passou em tudo: redireciona para a outra página (simulando envio bem sucedido)
+      e.preventDefault(); // remover se quiser realmente submeter
+      window.location.href = 'MangaZone.html';
+    });
+
+    // remover invalid ao preencher
+    document.addEventListener('input', (ev) => {
+      const t = ev.target;
+      if (t.classList.contains('is-invalid')) t.classList.remove('is-invalid');
+      if (t === qtPaginas && t.value) qtPaginas.classList.remove('is-invalid');
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
